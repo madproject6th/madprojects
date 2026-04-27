@@ -1,8 +1,8 @@
-import 'package:doctorappointment_app/ui/booking_screen/appointmentbook_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:doctorappointment_app/ui/home/services/doctor/doctor_model.dart';
 import 'package:doctorappointment_app/ui/home/state/appointment_store.dart';
 import 'package:doctorappointment_app/ui/home/widgets/doctor_avatar.dart';
-import 'package:flutter/material.dart';
+import 'package:doctorappointment_app/ui/booking_screen/appointmentbook_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Doctor doctor;
@@ -17,10 +17,10 @@ class BookingScreenState extends State<BookingScreen> {
   String selectedDate = "Tomorrow";
   String selectedTime = "";
   String consultationType = "Clinic Visit";
+
   final TextEditingController _notesController = TextEditingController();
 
-  final List<String> dates = const ["Tomorrow", "Tue", "Wed", "Thu", "Fri"];
-
+  final List<String> dates = ["Tomorrow", "Tue", "Wed", "Thu", "Fri"];
   final List<String> timeSlots = [
     "10:00 AM",
     "11:00 AM",
@@ -38,235 +38,304 @@ class BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final maxContentWidth = width > 1100
-        ? 900.0
-        : (width > 900 ? 780.0 : width);
     final consultationFee = consultationType == "Video Call" ? 1500 : 2000;
     final serviceFee = consultationType == "Video Call" ? 150 : 250;
     final total = consultationFee + serviceFee;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FA),
+
       appBar: AppBar(
-        title: Text("Book Appointment"),
-        backgroundColor: Colors.blue,
+        title: const Text("Book Appointment"),
+        backgroundColor: const Color.fromARGB(255, 96, 120, 253),
+        foregroundColor: Colors.black,
+        elevation: 0,
       ),
 
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxContentWidth),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+      bottomNavigationBar: _bottomBar(total),
+
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // 🔹 DOCTOR INFO
+          _sectionCard(
+            child: Row(
               children: [
-                // 👨‍⚕️ Doctor Info
-                Row(
+                DoctorAvatar(imageUrl: widget.doctor.image, radius: 28),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DoctorAvatar(imageUrl: widget.doctor.image, radius: 30),
-                    SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.doctor.name,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          widget.doctor.speciality,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
+                    Text(
+                      widget.doctor.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.doctor.speciality,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
-
-                SizedBox(height: 20),
-
-                // 📅 Date
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Select Date",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-                SizedBox(height: 10),
-
-                SizedBox(
-                  height: 44,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: dates.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final date = dates[index];
-                      final selected = date == selectedDate;
-                      return ChoiceChip(
-                        selected: selected,
-                        label: Text(date),
-                        onSelected: (_) => setState(() => selectedDate = date),
-                      );
-                    },
-                  ),
-                ),
-
-                SizedBox(height: 20),
-
-                // ⏰ Time Slots
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Select Time Slot",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-                SizedBox(height: 10),
-
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: timeSlots.map((time) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedTime = time;
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: selectedTime == time
-                              ? Colors.blue
-                              : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          time,
-                          style: TextStyle(
-                            color: selectedTime == time
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Consultation Type",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SegmentedButton<String>(
-                    segments: const [
-                      ButtonSegment(
-                        value: "Clinic Visit",
-                        icon: Icon(Icons.local_hospital_rounded),
-                        label: Text("Clinic"),
-                      ),
-                      ButtonSegment(
-                        value: "Video Call",
-                        icon: Icon(Icons.videocam_rounded),
-                        label: Text("Video"),
-                      ),
-                    ],
-                    selected: {consultationType},
-                    onSelectionChanged: (set) {
-                      setState(() => consultationType = set.first);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _notesController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: "Symptoms / notes for doctor",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Fee Summary",
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "Consultation (${consultationType == "Video Call" ? "Online" : "Physical"}): Rs. $consultationFee",
-                      ),
-                      Text("Service fee: Rs. $serviceFee"),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Total: Rs. $total",
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // 🔵 Confirm Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (selectedTime.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Select time first")),
-                        );
-                        return;
-                      }
-
-                      AppointmentStore.instance.addUpcoming(
-                        doctorName: widget.doctor.name,
-                        speciality: widget.doctor.speciality,
-                        dateLabel: selectedDate,
-                        timeLabel: selectedTime,
-                      );
-
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SuccessScreen(
-                            doctor: widget.doctor,
-                            day: selectedDate,
-                            time: selectedTime,
-                            doctorName: widget.doctor.name,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Text("Confirm Booking"),
-                  ),
-                ),
               ],
             ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // 🔹 DATE
+          _sectionCard(
+            title: "Select Date",
+            child: SizedBox(
+              height: 42,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: dates.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (_, i) {
+                  final date = dates[i];
+                  final selected = selectedDate == date;
+
+                  return GestureDetector(
+                    onTap: () => setState(() => selectedDate = date),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: selected ? Colors.blue : Colors.grey.shade100,
+                      ),
+                      child: Text(
+                        date,
+                        style: TextStyle(
+                          color: selected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // 🔹 TIME
+          _sectionCard(
+            title: "Select Time",
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: timeSlots.map((time) {
+                final selected = selectedTime == time;
+
+                return GestureDetector(
+                  onTap: () => setState(() => selectedTime = time),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: selected ? Colors.blue : Colors.grey.shade100,
+                    ),
+                    child: Text(
+                      time,
+                      style: TextStyle(
+                        color: selected ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // 🔹 CONSULT TYPE
+          _sectionCard(
+            title: "Consultation Type",
+            child: Row(
+              children: [
+                _typeCard("Clinic Visit", Icons.local_hospital),
+                const SizedBox(width: 8),
+                _typeCard("Video Call", Icons.videocam),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // 🔹 NOTES
+          _sectionCard(
+            title: "Notes",
+            child: TextField(
+              controller: _notesController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: "Write symptoms or notes...",
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // 🔹 FEE
+          _sectionCard(
+            title: "Fee Summary",
+            child: Column(
+              children: [
+                _row("Consultation", "Rs $consultationFee"),
+                _row("Service Fee", "Rs $serviceFee"),
+                const Divider(),
+                _row("Total", "Rs $total", bold: true),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔥 BOTTOM BAR
+  Widget _bottomBar(int total) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
+      ),
+      child: Row(
+        children: [
+          Text(
+            "Total: Rs $total",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+
+          const Spacer(),
+
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () {
+              if (selectedTime.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Select time first")),
+                );
+                return;
+              }
+
+              AppointmentStore.instance.addUpcoming(
+                doctorName: widget.doctor.name,
+                speciality: widget.doctor.speciality,
+                dateLabel: selectedDate,
+                timeLabel: selectedTime,
+              );
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SuccessScreen(
+                    doctor: widget.doctor,
+                    day: selectedDate,
+                    time: selectedTime,
+                    doctorName: widget.doctor.name,
+                  ),
+                ),
+              );
+            },
+            child: const Text("Confirm"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔥 SECTION CARD
+  Widget _sectionCard({String? title, required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(blurRadius: 8, color: Colors.black.withOpacity(0.04)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title != null) ...[
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+          ],
+          child,
+        ],
+      ),
+    );
+  }
+
+  // 🔥 ROW
+  Widget _row(String t, String v, {bool bold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(t),
+          Text(
+            v,
+            style: TextStyle(
+              fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔥 TYPE CARD
+  Widget _typeCard(String type, IconData icon) {
+    final selected = consultationType == type;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => consultationType = type),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: selected ? Colors.blue : Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: selected ? Colors.white : Colors.black),
+              const SizedBox(height: 6),
+              Text(
+                type,
+                style: TextStyle(color: selected ? Colors.white : Colors.black),
+              ),
+            ],
           ),
         ),
       ),

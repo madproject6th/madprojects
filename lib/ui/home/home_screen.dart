@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:doctorappointment_app/ui/home/services/doctor/doctor_data.dart';
 import 'package:doctorappointment_app/ui/home/state/appointment_store.dart';
@@ -36,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.sizeOf(context).width >= 900;
-    final pages = <Widget>[
+
+    final pages = [
       HomeTab(doctors: doctorList, onMenuTap: _openDrawer),
       AppointmentsTab(onMenuTap: _openDrawer),
       ProfileTab(onMenuTap: _openDrawer),
@@ -44,73 +46,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF4F7FE),
+
       drawer: _AppDrawer(
         selectedIndex: _selectedIndex,
         upcomingCount: _store.upcoming.length,
-        onSelect: (index) {
-          setState(() => _selectedIndex = index);
+        onSelect: (i) {
+          setState(() => _selectedIndex = i);
           Navigator.pop(context);
         },
       ),
+
       body: isWide
           ? Row(
               children: [
-                NavigationRail(
+                _SideRail(
                   selectedIndex: _selectedIndex,
-                  onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-                  labelType: NavigationRailLabelType.all,
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home_rounded),
-                      label: Text("Home"),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.calendar_month_rounded),
-                      label: Text("Appointments"),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.person_rounded),
-                      label: Text("Profile"),
-                    ),
-                  ],
+                  onSelect: (i) => setState(() => _selectedIndex = i),
                 ),
                 const VerticalDivider(width: 1),
                 Expanded(
-                  child: IndexedStack(
-                    index: _selectedIndex,
-                    children: pages,
-                  ),
+                  child: IndexedStack(index: _selectedIndex, children: pages),
                 ),
               ],
             )
-          : IndexedStack(
-              index: _selectedIndex,
-              children: pages,
-            ),
+          : IndexedStack(index: _selectedIndex, children: pages),
 
-      // 🔻 BOTTOM NAVIGATION
       bottomNavigationBar: isWide
           ? null
-          : BottomNavigationBar(
-              currentIndex: _selectedIndex,
+          : _GlassBottomNav(
+              index: _selectedIndex,
               onTap: (i) => setState(() => _selectedIndex = i),
-              selectedItemColor: Colors.blue,
-              backgroundColor: Colors.white,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_rounded),
-                  label: "Home",
-                ),
-                BottomNavigationBarItem(
-                  icon: _AppointmentsNavIcon(),
-                  label: "Appointments",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_rounded),
-                  label: "Profile",
-                ),
-              ],
             ),
     );
   }
@@ -120,6 +86,99 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+//
+// 🔥 SIDE NAV (WEB)
+//
+class _SideRail extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+
+  const _SideRail({required this.selectedIndex, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: NavigationRail(
+        selectedIndex: selectedIndex,
+        onDestinationSelected: onSelect,
+        labelType: NavigationRailLabelType.all,
+        selectedIconTheme: const IconThemeData(color: Color(0xFF4FACFE)),
+        selectedLabelTextStyle: const TextStyle(color: Color(0xFF4FACFE)),
+        destinations: const [
+          NavigationRailDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: Text("Home"),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month),
+            label: Text("Appointments"),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: Text("Profile"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+//
+// 🔥 GLASS BOTTOM NAV
+//
+class _GlassBottomNav extends StatelessWidget {
+  final int index;
+  final ValueChanged<int> onTap;
+
+  const _GlassBottomNav({required this.index, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(14),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+            ),
+            child: BottomNavigationBar(
+              currentIndex: index,
+              onTap: onTap,
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              selectedItemColor: const Color(0xFF4FACFE),
+              unselectedItemColor: Colors.grey,
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                BottomNavigationBarItem(
+                  icon: _AppointmentsNavIcon(),
+                  label: "Appointments",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: "Profile",
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+//
+// 🔥 PREMIUM DRAWER
+//
 class _AppDrawer extends StatelessWidget {
   final int selectedIndex;
   final int upcomingCount;
@@ -134,75 +193,76 @@ class _AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              color: Colors.blue.withValues(alpha: 0.08),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Color(0xFFE3F2FD),
-                    child: Icon(Icons.person_rounded, color: Colors.blue),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Ali",
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                  ),
-                  Text("ali@example.com", style: TextStyle(color: Colors.grey)),
-                ],
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
               ),
             ),
-            _DrawerTile(
-              selected: selectedIndex == 0,
-              icon: Icons.home_rounded,
-              title: "Home",
-              onTap: () => onSelect(0),
-            ),
-            _DrawerTile(
-              selected: selectedIndex == 1,
-              icon: Icons.calendar_month_rounded,
-              title: "Appointments",
-              trailing: upcomingCount > 0
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(20),
+            child: Row(
+              children: const [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, color: Colors.deepPurple),
+                ),
+                SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Ali",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      child: Text(
-                        upcomingCount > 9 ? "9+" : "$upcomingCount",
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
-                      ),
-                    )
-                  : null,
-              onTap: () => onSelect(1),
+                    ),
+                    Text(
+                      "ali@example.com",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            _DrawerTile(
-              selected: selectedIndex == 2,
-              icon: Icons.person_rounded,
-              title: "Profile",
-              onTap: () => onSelect(2),
-            ),
-            const Divider(height: 22),
-            _DrawerTile(
-              selected: false,
-              icon: Icons.settings_rounded,
-              title: "Settings",
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Settings opening (UI only)")),
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 10),
+
+          _DrawerTile(
+            selected: selectedIndex == 0,
+            icon: Icons.home,
+            title: "Home",
+            onTap: () => onSelect(0),
+          ),
+          _DrawerTile(
+            selected: selectedIndex == 1,
+            icon: Icons.calendar_month,
+            title: "Appointments",
+            trailing: upcomingCount > 0 ? _Badge(count: upcomingCount) : null,
+            onTap: () => onSelect(1),
+          ),
+          _DrawerTile(
+            selected: selectedIndex == 2,
+            icon: Icons.person,
+            title: "Profile",
+            onTap: () => onSelect(2),
+          ),
+
+          const Divider(),
+
+          _DrawerTile(
+            selected: false,
+            icon: Icons.settings,
+            title: "Settings",
+            onTap: () {},
+          ),
+        ],
       ),
     );
   }
@@ -226,12 +286,35 @@ class _DrawerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: onTap,
       selected: selected,
-      selectedTileColor: Colors.blue.withValues(alpha: 0.08),
-      leading: Icon(icon, color: selected ? Colors.blue : Colors.grey[700]),
+      onTap: onTap,
+      leading: Icon(
+        icon,
+        color: selected ? const Color(0xFF4FACFE) : Colors.grey,
+      ),
       title: Text(title),
       trailing: trailing,
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final int count;
+
+  const _Badge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        count > 9 ? "9+" : "$count",
+        style: const TextStyle(color: Colors.white, fontSize: 11),
+      ),
     );
   }
 }
@@ -242,32 +325,13 @@ class _AppointmentsNavIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final count = AppointmentStore.instance.upcoming.length;
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        const Icon(Icons.calendar_month_rounded),
+        const Icon(Icons.calendar_month),
         if (count > 0)
-          Positioned(
-            top: -4,
-            right: -10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              constraints: const BoxConstraints(minWidth: 16),
-              child: Text(
-                count > 9 ? "9+" : "$count",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
+          Positioned(top: -4, right: -10, child: _Badge(count: count)),
       ],
     );
   }

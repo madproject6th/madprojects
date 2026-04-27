@@ -53,142 +53,148 @@ class _LoginScreenState extends State<LoginScreen> {
                 constraints: const BoxConstraints(maxWidth: 450),
                 padding: EdgeInsets.all(width < 520 ? 22 : 40),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 5, 4, 4)
-                      .withValues(alpha: 0.2),
+                  color: const Color.fromARGB(
+                    255,
+                    5,
+                    4,
+                    4,
+                  ).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                    const Icon(
-                      Icons.local_hospital,
-                      size: 60,
-                      color: Colors.white,
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    const Text(
-                      "Login",
-
-                      style: TextStyle(
-                        fontSize: 22,
+                      const Icon(
+                        Icons.local_hospital,
+                        size: 60,
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
                       ),
-                    ),
 
-                    SizedBox(height: width < 520 ? 20 : 30),
+                      const SizedBox(height: 10),
 
-                    // Email
-                    TextFormField(
-                      controller: _emailController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration("Email", Icons.email),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Enter email";
-                        }
-                        return null;
-                      },
-                    ),
+                      const Text(
+                        "Login",
 
-                    const SizedBox(height: 20),
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
 
-                    // Password
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscure,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration("Password", Icons.lock)
-                          .copyWith(
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscure
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscure = !_obscure;
-                                });
-                              },
-                            ),
-                          ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Enter password";
-                        }
-                        return null;
-                      },
-                    ),
+                      SizedBox(height: width < 520 ? 20 : 30),
 
-                    SizedBox(height: width < 520 ? 24 : 35),
-
-                    // Login Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
-                            ),
-                          );
+                      // Email
+                      TextFormField(
+                        controller: _emailController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: _inputDecoration("Email", Icons.email),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Enter email";
+                          }
+                          return null;
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 10),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account?",
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        TextButton(
+                      const SizedBox(height: 20),
+
+                      // Password
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _obscure,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: _inputDecoration("Password", Icons.lock)
+                            .copyWith(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscure
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscure = !_obscure;
+                                  });
+                                },
+                              ),
+                            ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Enter password";
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: width < 520 ? 24 : 35),
+
+                      // Login Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SignupScreen(),
+                                builder: (context) => HomeScreen(),
                               ),
                             );
                           },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                           child: const Text(
-                            "Create Account",
-                            style: TextStyle(color: Colors.white),
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+
+                      const SizedBox(height: 10),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            "Don't have an account?",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SignupScreen(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Create Account",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
           ),
         ],
       ),
