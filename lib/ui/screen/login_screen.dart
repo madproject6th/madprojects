@@ -19,13 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
 
   @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final cardWidth = width < 520 ? width * 0.92 : 450.0;
@@ -33,23 +26,25 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
+          // 🔵 Background Image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/backgroundimage.jpg"),
+                image: AssetImage(
+                  "assets/images/backgroundimage.jpg",
+                ), // apni image add karo
                 fit: BoxFit.cover,
               ),
             ),
           ),
 
-          // Blur Layer
+          // 🌫 Blur Effect
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Container(color: Colors.black.withOpacity(0.2)),
+            child: Container(color: Colors.black.withValues(alpha: 0.2)),
           ),
 
-          // Login Card
+          // 🧊 Center Login Card
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 20),
@@ -58,9 +53,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 constraints: const BoxConstraints(maxWidth: 450),
                 padding: EdgeInsets.all(width < 520 ? 22 : 40),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 5, 4, 4).withOpacity(0.2),
+                  color: const Color.fromARGB(
+                    255,
+                    5,
+                    4,
+                    4,
+                  ).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Form(
                   key: _formKey,
@@ -72,10 +74,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         size: 60,
                         color: Colors.white,
                       ),
+
                       const SizedBox(height: 10),
 
                       const Text(
                         "Login",
+
                         style: TextStyle(
                           fontSize: 22,
                           color: Colors.white,
@@ -85,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       SizedBox(height: width < 520 ? 20 : 30),
 
-                      // EMAIL
+                      // Email
                       TextFormField(
                         controller: _emailController,
                         style: const TextStyle(color: Colors.white),
@@ -94,16 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.isEmpty) {
                             return "Enter email";
                           }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return "Enter valid email";
-                          }
                           return null;
                         },
                       ),
 
                       const SizedBox(height: 20),
 
-                      // PASSWORD
+                      // Password
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscure,
@@ -128,39 +129,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.isEmpty) {
                             return "Enter password";
                           }
-                          if (value.length < 6) {
-                            return "Password must be at least 6 characters";
-                          }
                           return null;
                         },
                       ),
 
                       SizedBox(height: width < 520 ? 24 : 35),
 
-                      // LOGIN BUTTON
+                      // Login Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              if (_emailController.text.trim() ==
-                                      "atiq123@gmail.com" &&
-                                  _passwordController.text.trim() == "111111") {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomeScreen(),
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Invalid email or password"),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            }
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomeScreen(),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
@@ -181,12 +166,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
 
                       const SizedBox(height: 10),
-
                       Wrap(
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             "Don't have an account?",
                             style: TextStyle(color: Colors.white70),
                           ),
@@ -217,14 +201,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // INPUT DECORATION
+  // ✨ Custom Input Decoration
   InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: Colors.white70),
       prefixIcon: Icon(icon, color: Colors.white),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.2),
+      fillColor: Colors.white.withValues(alpha: 0.2),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
